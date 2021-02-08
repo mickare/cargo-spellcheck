@@ -31,6 +31,14 @@ pub struct HunspellWrapper(pub Arc<Hunspell>);
 unsafe impl Send for HunspellWrapper {}
 unsafe impl Sync for HunspellWrapper {}
 
+// The value is `true` if all characters are emoji
+pub fn is_emoji(word: String) -> bool {
+    if !word.is_empty() {
+        return word.clone().chars().all(unic_emoji_char::is_emoji);
+    }
+    false
+}
+
 pub struct HunspellChecker;
 
 impl HunspellChecker {
@@ -247,6 +255,13 @@ fn obtain_suggestions<'s>(
             .filter(|x| x.len() > 1) // single char suggestions tend to be useless
             .collect::<Vec<_>>();
 
+        // strings made of emojis
+        if is_emoji(word.clone()) {
+            trace!(target: "quirks", "Found emoji character, treating {} as ok", &word);
+            return;
+        }
+        let chars: Vec<char> = word.clone().chars().collect();
+
         if allow_concatenated && replacements_contain_dashless(&word, replacements.as_slice()) {
             trace!(target: "quirks", "Found dashless word in replacement suggestions, treating {} as ok", &word);
             return;
@@ -278,6 +293,7 @@ fn obtain_suggestions<'s>(
     }
 }
 
+<<<<<<< HEAD
 /// Check if provided path has valid dictionary format.
 ///
 /// This is a YOLO check.
@@ -394,4 +410,25 @@ bar
             }
         }
     }
+=======
+macro_rules! parametrized_is_emoji {
+    ($($name:ident: $value:expr,)*) => {
+    $(
+        #[test]
+        fn $name() {
+            let (input, expected) = $value;
+            assert_eq!(expected, is_emoji(input));
+        }
+    )*
+    }
+}
+
+parametrized_is_emoji! {
+    empty: ("".to_string(), false),
+    emojis: ("🐍🤗🦀".to_string(), true),
+    contains_emojis: ("contains emoji 🦀".to_string(), false),
+    contains_only_unicode: ("⅔".to_string(), false),
+    contains_emoji_and_unicode: ("🐍🤗🦀⅔".to_string(), false),
+    no_emojis: ("no emoji string".to_string(), false),
+>>>>>>> 6bf3802 (fix/emojis: pass it)
 }

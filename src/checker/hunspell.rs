@@ -293,7 +293,6 @@ fn obtain_suggestions<'s>(
     }
 }
 
-<<<<<<< HEAD
 /// Check if provided path has valid dictionary format.
 ///
 /// This is a YOLO check.
@@ -410,25 +409,4 @@ bar
             }
         }
     }
-=======
-macro_rules! parametrized_is_emoji {
-    ($($name:ident: $value:expr,)*) => {
-    $(
-        #[test]
-        fn $name() {
-            let (input, expected) = $value;
-            assert_eq!(expected, is_emoji(input));
-        }
-    )*
-    }
-}
-
-parametrized_is_emoji! {
-    empty: ("".to_string(), false),
-    emojis: ("🐍🤗🦀".to_string(), true),
-    contains_emojis: ("contains emoji 🦀".to_string(), false),
-    contains_only_unicode: ("⅔".to_string(), false),
-    contains_emoji_and_unicode: ("🐍🤗🦀⅔".to_string(), false),
-    no_emojis: ("no emoji string".to_string(), false),
->>>>>>> 6bf3802 (fix/emojis: pass it)
 }

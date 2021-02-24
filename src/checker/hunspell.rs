@@ -25,18 +25,21 @@ use anyhow::{anyhow, bail, Result};
 use super::quirks::{
     replacements_contain_dashed, replacements_contain_dashless, transform, Transformed,
 };
+use regex::RegexSetBuilder;
 
 pub struct HunspellWrapper(pub Arc<Hunspell>);
 
 unsafe impl Send for HunspellWrapper {}
 unsafe impl Sync for HunspellWrapper {}
 
-// The value is `true` if all characters are emoji
-pub fn is_emoji(word: String) -> bool {
-    if !word.is_empty() {
-        return word.clone().chars().all(unic_emoji_char::is_emoji);
-    }
-    false
+// The value is `true` if string is made of emoji's
+// or unicode `VULGAR FRACTION`
+pub fn vulgar_fraction_or_emoji(word: &str) -> bool {
+    let set = RegexSetBuilder::new(&[r"[\u00BC-\u00BE\u2150-\u215E-\u2189]", r"^[\p{Emoji}]+$"])
+        .case_insensitive(true)
+        .build()
+        .unwrap();
+    return set.is_match(word);
 }
 
 pub struct HunspellChecker;
@@ -255,12 +258,11 @@ fn obtain_suggestions<'s>(
             .filter(|x| x.len() > 1) // single char suggestions tend to be useless
             .collect::<Vec<_>>();
 
-        // strings made of emojis
-        if is_emoji(word.clone()) {
-            trace!(target: "quirks", "Found emoji character, treating {} as ok", &word);
+        // strings made of vulgar fraction or emoji
+        if vulgar_fraction_or_emoji(&word) {
+            trace!(target: "quirks", "Found emoji or vulgar fraction character, treating {} as ok", &word);
             return;
         }
-        let chars: Vec<char> = word.clone().chars().collect();
 
         if allow_concatenated && replacements_contain_dashless(&word, replacements.as_slice()) {
             trace!(target: "quirks", "Found dashless word in replacement suggestions, treating {} as ok", &word);
@@ -409,4 +411,33 @@ bar
             }
         }
     }
+parametrized_vulgar_fraction_or_emoji! {
+    empty: ("", false),
+    emojis: ("🐍🤗🦀", true),
+    contains_emojis: ("contains emoji 🦀", false),
+    contains_only_unicode: ("⅔⅔⅔↉↉↉", true),
+    contains_emojis_and_unicodes: ("🐍🤗⅒🦀⅔¾", true),
+    no_emojis: ("no emoji string", false),
+    is_number: ("123", true),
+    is_latin_letter: ("a", false),
+    vulgar_fraction_one_quarter_and_emojis: ("¼🤗🦀", true),
+    emojis_and_vulgar_fraction_one_half: ("🤗🦀½", true),
+    emojis_and_vulgar_fraction_three_quarters: ("🤗🦀¾", true),
+    emojis_and_vulgar_fraction_one_seventh: ("🤗🦀⅐", true),
+    emojis_and_vulgar_fraction_one_ninth: ("🤗🦀⅑", true),
+    emojis_and_vulgar_fraction_one_tenth: ("🤗🦀⅒", true),
+    emojis_and_vulgar_fraction_one_third: ("🤗🦀⅓", true),
+    emojis_and_vulgar_fraction_two_thirds: ("🤗🦀⅔", true),
+    emojis_and_vulgar_fraction_one_fifth: ("🤗🦀⅕", true),
+    emojis_and_vulgar_fraction_two_fifth: ("🤗🦀⅖", true),
+    emojis_and_vulgar_fraction_three_fifths: ("🤗🦀⅗", true),
+    emojis_and_vulgar_fraction_four_fifths: ( "🐍⅘", true),
+    emojis_and_vulgar_fraction_one_sixth: ("🐍⅙", true),
+    emojis_and_vulgar_fraction_five_sixths: ("🐍⅚", true),
+    emojis_and_vulgar_fraction_one_eighth: ("🦀🐍⅛", true),
+    emojis_and_vulgar_fraction_three_eighths: ("🦀🐍⅜", true),
+    emojis_and_vulgar_fraction_five_eights: ("🦀🐍⅝", true),
+    emojis_and_vulgar_fraction_five_eighths: ("🦀🐍⅝", true),
+    emojis_and_vulgar_fraction_seven_eighths: ("🦀🐍⅞", true),
+    emojis_and_vulgar_fraction_zero_thirds: ("🦀🐍↉", true),
 }

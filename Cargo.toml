@@ -53,8 +53,6 @@ syn = { version = "1", features = ["full"] }
 toml = "0.5"
 # for the config file
 walkdir = "2"
-unic-emoji-char = "0.9.0"
-unicode_names2 = "0.4.0"
 
 # config parsing, must be independent of features
 

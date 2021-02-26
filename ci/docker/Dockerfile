@@ -1,6 +1,7 @@
 FROM rust:1.50
 
 ARG BUILD_DATE
+ARG BUILD_REPO
 ARG BUILD_REVISION
 ARG BUILD_VERSION
 
@@ -12,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 
 # Configure LLVM and install cargo-spellcheck
 RUN export LLVM_CONFIG_PATH=/usr/local/opt/llvm/bin/llvm-config \
-    && cargo install --git https://github.com/mickare/cargo-spellcheck.git --rev ${BUILD_REVISION} cargo-spellcheck
+    && cargo install --git ${BUILD_REPO} --rev ${BUILD_REVISION} cargo-spellcheck
 
 ADD ci/docker/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

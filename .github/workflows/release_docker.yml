@@ -40,7 +40,7 @@ jobs:
           file: ci/docker/Dockerfile
           build-args: |
             BUILD_DATE=${{ env.BUILD_DATE }}
-            BUILD_REPO=https://github.com/${{ github.repository }}.git
+            BUILD_REPO=https://github.com/mickare/cargo-spellcheck.git
             BUILD_REVISION=${{ github.sha }}
             BUILD_VERSION=${{ steps.get_version.outputs.version }}
           push: true

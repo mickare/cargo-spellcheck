@@ -40,7 +40,7 @@ jobs:
           file: ci/docker/Dockerfile
           build-args: |
             BUILD_DATE=${{ env.BUILD_DATE }}
-            BUILD_REPO=${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }}.git
+            BUILD_REPO=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git
             BUILD_REVISION=${{ github.sha }}
             BUILD_VERSION=${{ steps.get_version.outputs.version }}
           push: true

@@ -1,0 +1,12 @@
+name: Cargo Spellcheck
+description: Github Action for cargo-spellcheck
+
+author: Bernhard Schuster, Michael Käser, Robin Freyler
+
+branding:
+  color: green
+  icon: type
+
+runs:
+  using: docker
+  image: docker://ghcr.io/mickare/cargo-spellcheck:${GITHUB_REF##*/}

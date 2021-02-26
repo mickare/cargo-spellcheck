@@ -44,4 +44,4 @@ jobs:
             BUILD_VERSION=${{ steps.get_version.outputs.version }}
           push: true
           tags: |
-            mickare/cargo-spellcheck:${{ steps.get_version.outputs.version }}
+            ghcr.io/mickare/cargo-spellcheck:${{ steps.get_version.outputs.version }}

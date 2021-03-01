@@ -1,7 +1,7 @@
 name: Cargo Spellcheck
 description: Github Action for cargo-spellcheck
 
-author: Bernhard Schuster, Michael Käser, Robin Freyler
+author: Bernhard Schuster, Michael Käser
 
 branding:
   color: green
@@ -9,4 +9,4 @@ branding:
 
 runs:
   using: docker
-  image: docker://ghcr.io/mickare/cargo-spellcheck:${GITHUB_REF##*/}
+  image: docker://mickare/cargo-spellcheck:${GITHUB_REF##*/}

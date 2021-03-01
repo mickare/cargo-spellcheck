@@ -32,13 +32,11 @@ jobs:
             ${{ runner.os }}-buildx-
       
       ######################################
-      # Login to GitHub Container registry
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+      # Login to DockerHub registry
+      - name: Login to DockerHub
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-          registry: ghcr.io
 
       - name: Build and push
         id: docker_build
